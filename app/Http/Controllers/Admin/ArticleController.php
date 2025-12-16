@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use App\Http\Requests\ArticleRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Auth;
 class ArticleController extends Controller
 {public function index(Request $request)
 {
@@ -39,32 +39,21 @@ class ArticleController extends Controller
     return view('admin.articles.create', compact('categories'));
     }
 
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'title'        => 'required|string|max:255',
-        'content'      => 'required|string',
-        'categories'   => 'required|array',
-        'categories.*' => 'exists:categories,id',
-        'image'        => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-        'published'    => 'required|in:0,1',
-    ]);
-
-    if ($request->hasFile('image')) {
-        $validated['image'] = $request->file('image')->store('articles', 'public');
-    }
-
-    $validated['slug'] = Str::slug($validated['title']);
-    $validated['user_id'] = auth()->id();
-
-    $article = Article::create($validated);
-
-    $article->categories()->sync($validated['categories']);
-
-    return redirect()
-        ->route('admin.articles.index')
+    public function store(ArticleRequest $request) {
+        $data = $request->validated();
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('articles', 'public');
+        }
+        $data['slug'] = Str::slug($data['title']);
+        $data['user_id'] = Auth::id();
+        $data['published'] = isset($data['published']) ? (int)$data['published'] : 0;
+        $article = Article::create($data);
+        if (!empty($data['categories'])) {
+            $article->categories()->sync($data['categories']);
+        }
+        return redirect() ->route('admin.articles.index')
         ->with('message', 'The article has been added successfully');
-}
+    }
 
     public function show(string $id)
     {
@@ -81,35 +70,22 @@ public function store(Request $request)
 
 
 
-public function update(Request $request, Article $article)
-{
-    $validated = $request->validate([
-        'title'        => 'required|string|max:255',
-        'content'      => 'required|string',
-        'categories'   => 'nullable|array',
-        'categories.*' => 'exists:categories,id',
-        'image'        => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-        'published' => 'required|in:0,1',
-    ]);
-
-    if ($request->hasFile('image')) {
-        // delete old image
-        if ($article->image && Storage::disk('public')->exists($article->image)) {
-            Storage::disk('public')->delete($article->image);
+    public function update(ArticleRequest $request, Article $article) {
+        $data = $request->validated();
+         // Process the new image and delete the old one if it exists
+        if ($request->hasFile('image')) {
+            if ($article->image && Storage::disk('public')->exists($article->image))
+                { Storage::disk('public')->delete($article->image); }
+            $data['image'] = $request->file('image')->store('articles', 'public');
         }
-
-        $validated['image'] = $request->file('image')->store('articles', 'public');
+        $data['slug'] = Str::slug($data['title']);
+        $data['published'] = isset($data['published']) ? (int)$data['published'] : 0;
+        $article->update($data);
+        $article->categories()->sync($data['categories'] ?? []);
+        return redirect()
+            ->route('admin.articles.index')
+            ->with('message', 'The article has been updated successfully');
     }
-
-    $validated['slug'] = Str::slug($validated['title']);
-
-    $article->update($validated);
-    $article->categories()->sync($validated['categories'] ?? []);
-
-    return redirect()
-        ->route('admin.articles.index')
-        ->with('message', 'The article has been updated successfully');
-}
 
     public function destroy($id)
 {
