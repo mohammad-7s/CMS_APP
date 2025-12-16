@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 class CommentFrontController extends Controller
 {
@@ -13,7 +14,7 @@ class CommentFrontController extends Controller
 
     public function store(Request $request, Article $article)
 {
-    if (!auth()->check()) {
+    if (!Auth::check()) {
     return back()->with('error', 'You must log in to add a comment');
 }
 
@@ -38,9 +39,9 @@ class CommentFrontController extends Controller
     ]);
 
     $article->comments()->create([
-        'user_id' => auth()->id(),
-        'email'=>auth()->user()->email,
-        'name' => auth()->user()->name,
+        'user_id' => Auth::id(),
+        'email'=>Auth::user()->email,
+        'name' =>Auth::user()->name,
         'comment' => $request->message,
         'approved' => false,
     ]);
