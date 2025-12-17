@@ -22,7 +22,7 @@ class ArticleRequest extends FormRequest
             'content' => 'required|string',
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'published' => 'sometimes|boolean',
         ];
     }

@@ -13,11 +13,11 @@
             <table class="w-full border-collapse">
                 <thead>
                     <tr class="bg-gray-100 border-b">
-                        <th class="p-3 text-right font-semibold text-gray-700">#</th>
-                        <th class="p-3 text-right font-semibold text-gray-700">Name</th>
-                        <th class="p-3 text-right font-semibold text-gray-700">Email</th>
-                        <th class="p-3 text-right font-semibold text-gray-700">Current role</th>
-                        <th class="p-3 text-right font-semibold text-gray-700">Update role</th>
+                        <th class="p-3 text-left font-semibold text-gray-700">#</th>
+                        <th class="p-3 text-left font-semibold text-gray-700">Name</th>
+                        <th class="p-3 text-left font-semibold text-gray-700">Email</th>
+                        <th class="p-3 text-left font-semibold text-gray-700">Current role</th>
+                        <th class="p-3 text-left font-semibold text-gray-700">Update role</th>
                     </tr>
                 </thead>
                 <tbody>

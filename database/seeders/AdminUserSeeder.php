@@ -16,10 +16,10 @@ class AdminUserSeeder extends Seeder
     {
 
         User::updateOrCreate(
-            ['email' => 'admin@gmail.com'], // email الذي ظهر في خطأ duplicate
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('password'), // غيّره لاحقاً
+                'password' => Hash::make('password'),
                 'role' => 'admin',
             ]
         );
